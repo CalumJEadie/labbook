@@ -8,6 +8,16 @@ Whilst running before/after and think aloud studies for my undergraduate dissert
 
 This motivated a tool that would allow me **quickly** and **accurately** make **timestamped** notes. A digital lab notebook.
 
+## Screenshots
+
+### Running an experiment
+
+![Running an experiment](screenshots/running-experiment.png)
+
+### Experiment log
+
+![Experiment log](screenshots/experiment-log.png)
+
 ## Running
 
 ```sh
