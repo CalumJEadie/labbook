@@ -34,3 +34,7 @@ apt-get install python-pyside
 # Mac
 port install py-pyside
 ```
+
+## License
+
+labbook is licensed under a MIT license. See LICENSE.txt.
