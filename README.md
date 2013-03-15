@@ -10,7 +10,9 @@ This motivated a tool that would allow me **quickly** and **accurately** make **
 
 ## Running
 
-???
+```sh
+python labbook/labbook.py
+```
 
 ## Dependancies
 
