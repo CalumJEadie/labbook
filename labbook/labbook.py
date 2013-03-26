@@ -54,11 +54,13 @@ class Labbook(QMainWindow):
         self._addEntryAction.setStatusTip('Add entry to current experiment')
         self._addEntryAction.setToolTip('Add entry to current experiment')
         self._addEntryAction.triggered.connect(self._addEntry)
+        self._addEntryAction.setEnabled(False)
 
         self._stopExperimentAction = QAction("Stop", self)
         self._stopExperimentAction.setStatusTip('Stop experiment')
         self._stopExperimentAction.setToolTip('Stop experiment')
         self._stopExperimentAction.triggered.connect(self._stopExperiment)
+        self._stopExperimentAction.setEnabled(False)
 
         # Set up toolbar
         
@@ -83,31 +85,8 @@ class Labbook(QMainWindow):
         vboxLayout.addWidget(self._timerWidget)
 
         self._noteEdit = QLineEdit()
+        self._noteEdit.returnPressed.connect(self._addEntryAction.triggered)
         vboxLayout.addWidget(self._noteEdit)
-
-        hboxLayout = QHBoxLayout()
-
-        self._startExperimentButton = QPushButton("Start")
-        self._startExperimentButton.setToolTip('Start experiment')
-        self._startExperimentButton.clicked.connect(self._startExperiment)
-
-        self._addEntryButton = QPushButton("Add Entry")
-        self._addEntryButton.clicked.connect(self._addEntry)
-        self._addEntryButton.setEnabled(False)
-        self._addEntryAction.setEnabled(False)
-        self._noteEdit.returnPressed.connect(self._addEntryButton.clicked)
-
-        self._stopExperimentButton = QPushButton("Stop")
-        self._stopExperimentButton.setToolTip('Stop experiment')
-        self._stopExperimentButton.clicked.connect(self._stopExperiment)
-        self._stopExperimentButton.setEnabled(False)
-        self._stopExperimentAction.setEnabled(False)
-
-        hboxLayout.addWidget(self._startExperimentButton)
-        hboxLayout.addWidget(self._addEntryButton)
-        hboxLayout.addWidget(self._stopExperimentButton)
-
-        vboxLayout.addLayout(hboxLayout)
 
         self._notesView = QPlainTextEdit()
         self._notesView.setReadOnly(True)
@@ -147,12 +126,9 @@ class Labbook(QMainWindow):
         self._experimentFile.write(header)
         self._notesView.setPlainText(header)
 
-
         self._timerWidget.start()
 
-        self._addEntryButton.setEnabled(True)
         self._addEntryAction.setEnabled(True)
-        self._stopExperimentButton.setEnabled(True)
         self._stopExperimentAction.setEnabled(True)
 
     def _addEntry(self):
@@ -178,9 +154,7 @@ class Labbook(QMainWindow):
 
         self._experimentFile.close()
 
-        self._addEntryButton.setEnabled(False)
         self._addEntryAction.setEnabled(False)
-        self._stopExperimentButton.setEnabled(False)
         self._stopExperimentAction.setEnabled(False)
 
     def _openExperimentFolder(self):
