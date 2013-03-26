@@ -85,10 +85,12 @@ class Labbook(QMainWindow):
         self._titleNoteStack = QStackedWidget(self)
 
         self._experimentTitleEdit = QLineEdit()
+        self._experimentTitleEdit.setPlaceholderText("Enter experiment title")
         self._experimentTitleEdit.returnPressed.connect(self._startExperimentAction.triggered)
         self._titleNoteStack.addWidget(self._experimentTitleEdit)
 
         self._noteEdit = QLineEdit()
+        self._noteEdit.setPlaceholderText("Enter note")
         self._noteEdit.returnPressed.connect(self._addEntryAction.triggered)
         self._titleNoteStack.addWidget(self._noteEdit)
 
