@@ -25,8 +25,8 @@ Experiment log
 .. image:: https://raw.github.com/CalumJEadie/labbook/master/screenshots/experiment-log.png
     :alt: Experiment log
 
-Running
-=======
+Usage
+=====
 
 ``python labbook/labbook.py``
 
