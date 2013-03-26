@@ -19,6 +19,13 @@ Title: $title
 """)
 ENTRY_TEMPLATE = string.Template("\n$time: $note")
 
+# STYLESHEET = """
+# QToolBar QWidget
+# {
+#     font-size: 14px
+# }
+# """
+
 class Labbook(QMainWindow):
 
     def __init__(self):
@@ -37,6 +44,7 @@ class Labbook(QMainWindow):
 
         self.setWindowTitle("labbook")
         self.resize(400, 400)
+        # self.setStyleSheet(STYLESHEET)    
 
         # Set up actions.
 
