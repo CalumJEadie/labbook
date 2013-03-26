@@ -16,31 +16,31 @@ Screenshots
 Running an experiment
 ---------------------
 
-![Running an experiment](screenshots/running-experiment.png)
+.. image:: https://raw.github.com/CalumJEadie/labbook/master/screenshots/running-experiment.png
+    :alt: Running an experiment
 
 Experiment log
 --------------
 
-![Experiment log](screenshots/experiment-log.png)
+.. image:: https://raw.github.com/CalumJEadie/labbook/master/screenshots/experiment-log.png
+    :alt: Experiment log
 
 Running
 =======
 
-```sh
-python labbook/labbook.py
-```
+``python labbook/labbook.py``
 
 Dependancies
 ============
 
 pyside - Python Qt bindings
 
-```sh
-# Debian derived linux
-apt-get install python-pyside
-# Mac
-port install py-pyside
-```
+::
+
+    # Debian derived linux
+    apt-get install python-pyside
+    # Mac
+    port install py-pyside
 
 License
 =======
