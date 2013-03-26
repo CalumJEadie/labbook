@@ -83,6 +83,7 @@ class Labbook(QMainWindow):
         vboxLayout.addWidget(self._timerWidget)
 
         self._titleNoteStack = QStackedWidget(self)
+        self._titleNoteStack.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
 
         self._experimentTitleEdit = QLineEdit()
         self._experimentTitleEdit.setPlaceholderText("Enter experiment title")
