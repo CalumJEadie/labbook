@@ -9,7 +9,8 @@ import os
 import string
 import datetime
 
-from PySide import QtCore, QtGui
+from PySide.QtCore import *
+from PySide.QtGui import *
 
 # Configuration
 APP_DIR = os.path.expanduser("~/labbook")
@@ -18,7 +19,7 @@ Title: $title
 """)
 ENTRY_TEMPLATE = string.Template("\n$time: $note")
 
-class Labbook(QtGui.QWidget):
+class Labbook(QMainWindow):
 
     def __init__(self):
         super(Labbook, self).__init__()
@@ -32,56 +33,107 @@ class Labbook(QtGui.QWidget):
 
     def _initUI(self):
 
-        self.setWindowTitle("Labbook")
+        # Set up window.
+
+        self.setWindowTitle("labbook")
         self.resize(400, 400)
 
-        vboxLayout = QtGui.QVBoxLayout()
+        # Set up actions.
+
+        openExperimentFolderAction = QAction("View past experiments", self)
+        openExperimentFolderAction.setStatusTip('Open experiments folder')
+        openExperimentFolderAction.setToolTip('Open experiments folder')
+        openExperimentFolderAction.triggered.connect(self._openExperimentFolder)
+
+        self._startExperimentAction = QAction("Start", self)
+        self._startExperimentAction.setStatusTip('Start experiment')
+        self._startExperimentAction.setToolTip('Start experiment')
+        self._startExperimentAction.triggered.connect(self._startExperiment)
+
+        self._addEntryAction = QAction("Add entry", self)
+        self._addEntryAction.setStatusTip('Add entry to current experiment')
+        self._addEntryAction.setToolTip('Add entry to current experiment')
+        self._addEntryAction.triggered.connect(self._addEntry)
+
+        self._stopExperimentAction = QAction("Stop", self)
+        self._stopExperimentAction.setStatusTip('Stop experiment')
+        self._stopExperimentAction.setToolTip('Stop experiment')
+        self._stopExperimentAction.triggered.connect(self._stopExperiment)
+
+        # Set up toolbar
+        
+        toolbar = self.addToolBar('')
+        toolbar.setFloatable(False)
+        toolbar.setMovable(False)
+
+        toolbar.addAction(self._startExperimentAction)
+        toolbar.addAction(self._addEntryAction)
+        toolbar.addAction(self._stopExperimentAction)
+        toolbar.addSeparator()
+        toolbar.addAction(openExperimentFolderAction)
+
+        # Set up central widget.
+        
+        centralWidget = QWidget(self)
+
+        vboxLayout = QVBoxLayout()
 
         self._timerWidget = DigitalTimer()
         self._timerWidget.setFixedHeight(100)
         vboxLayout.addWidget(self._timerWidget)
 
-        self._noteEdit = QtGui.QLineEdit()
+        self._noteEdit = QLineEdit()
         vboxLayout.addWidget(self._noteEdit)
 
-        hboxLayout = QtGui.QHBoxLayout()
+        hboxLayout = QHBoxLayout()
 
-        self._startButton = QtGui.QPushButton("Start")
-        self._startButton.clicked.connect(self._start)
+        self._startExperimentButton = QPushButton("Start")
+        self._startExperimentButton.setToolTip('Start experiment')
+        self._startExperimentButton.clicked.connect(self._startExperiment)
 
-        self._addEntryButton = QtGui.QPushButton("Add Entry")
-        self._addEntryButton.clicked.connect(self._add)
+        self._addEntryButton = QPushButton("Add Entry")
+        self._addEntryButton.clicked.connect(self._addEntry)
         self._addEntryButton.setEnabled(False)
+        self._addEntryAction.setEnabled(False)
         self._noteEdit.returnPressed.connect(self._addEntryButton.clicked)
 
-        self._stopButton = QtGui.QPushButton("Stop")
-        self._stopButton.clicked.connect(self._stop)
-        self._stopButton.setEnabled(False)
+        self._stopExperimentButton = QPushButton("Stop")
+        self._stopExperimentButton.setToolTip('Stop experiment')
+        self._stopExperimentButton.clicked.connect(self._stopExperiment)
+        self._stopExperimentButton.setEnabled(False)
+        self._stopExperimentAction.setEnabled(False)
 
-        hboxLayout.addWidget(self._startButton)
+        hboxLayout.addWidget(self._startExperimentButton)
         hboxLayout.addWidget(self._addEntryButton)
-        hboxLayout.addWidget(self._stopButton)
+        hboxLayout.addWidget(self._stopExperimentButton)
 
         vboxLayout.addLayout(hboxLayout)
 
-        self._notesView = QtGui.QPlainTextEdit()
+        self._notesView = QPlainTextEdit()
         self._notesView.setReadOnly(True)
         vboxLayout.addWidget(self._notesView)
 
-        self.setLayout(vboxLayout)
+        centralWidget.setLayout(vboxLayout)
+
+        self.setCentralWidget(centralWidget)
+
+        # Set up status bar.
+        self.statusBar()
+
+        # Show window.
 
         self.show()
 
-    def _start(self):
+    def _startExperiment(self):
         if self._experimentRunning:
-            self._stop()
+            self._stopExperiment()
         self._experimentRunning = True
 
         self._experimentStartTime = datetime.datetime.now()
 
         ok = False
         while not ok:
-            title, ok = QtGui.QInputDialog.getText(self, 'Experiment title', 
+            title, ok = QInputDialog.getText(self, 'Experiment title', 
                 'Experiment title:')
         self._experimentTitle = title
 
@@ -99,9 +151,11 @@ class Labbook(QtGui.QWidget):
         self._timerWidget.start()
 
         self._addEntryButton.setEnabled(True)
-        self._stopButton.setEnabled(True)
+        self._addEntryAction.setEnabled(True)
+        self._stopExperimentButton.setEnabled(True)
+        self._stopExperimentAction.setEnabled(True)
 
-    def _add(self):
+    def _addEntry(self):
         if not self._experimentRunning:
             return
 
@@ -117,7 +171,7 @@ class Labbook(QtGui.QWidget):
 
         self._noteEdit.clear()
 
-    def _stop(self):
+    def _stopExperiment(self):
         self._experimentRunning = False
 
         self._timerWidget.stop()
@@ -125,18 +179,23 @@ class Labbook(QtGui.QWidget):
         self._experimentFile.close()
 
         self._addEntryButton.setEnabled(False)
-        self._stopButton.setEnabled(False)
+        self._addEntryAction.setEnabled(False)
+        self._stopExperimentButton.setEnabled(False)
+        self._stopExperimentAction.setEnabled(False)
+
+    def _openExperimentFolder(self):
+        QDesktopServices.openUrl(QUrl("file:///" + APP_DIR, QUrl.TolerantMode))
 
 
-class DigitalTimer(QtGui.QLCDNumber):
+class DigitalTimer(QLCDNumber):
 
     def __init__(self, parent=None):
         super(DigitalTimer, self).__init__(parent)
-        self.setSegmentStyle(QtGui.QLCDNumber.Filled)
-        self._time = QtCore.QTime(0, 0)
+        self.setSegmentStyle(QLCDNumber.Filled)
+        self._time = QTime(0, 0)
         self.display("00:00")
 
-        self._displayUpdater = QtCore.QTimer()
+        self._displayUpdater = QTimer()
         self._displayUpdater.timeout.connect(self._updateDisplay)
 
     def start(self):
@@ -152,13 +211,13 @@ class DigitalTimer(QtGui.QLCDNumber):
 
     def time(self):
         elapsedMs = self._time.elapsed()
-        elapsedTime = QtCore.QTime(0, 0)
+        elapsedTime = QTime(0, 0)
         elapsedTime = elapsedTime.addMSecs(elapsedMs)
         return elapsedTime.toString("mm:ss")
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     labbook = Labbook()
     sys.exit(app.exec_())
 
