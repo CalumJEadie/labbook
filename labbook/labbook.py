@@ -54,13 +54,11 @@ class Labbook(QMainWindow):
         self._addEntryAction.setStatusTip('Add entry to current experiment')
         self._addEntryAction.setToolTip('Add entry to current experiment')
         self._addEntryAction.triggered.connect(self._addEntry)
-        self._addEntryAction.setEnabled(False)
 
         self._stopExperimentAction = QAction("Stop", self)
         self._stopExperimentAction.setStatusTip('Stop experiment')
         self._stopExperimentAction.setToolTip('Stop experiment')
         self._stopExperimentAction.triggered.connect(self._stopExperiment)
-        self._stopExperimentAction.setEnabled(False)
 
         # Set up toolbar
         
@@ -84,9 +82,17 @@ class Labbook(QMainWindow):
         self._timerWidget.setFixedHeight(100)
         vboxLayout.addWidget(self._timerWidget)
 
+        self._titleNoteStack = QStackedWidget(self)
+
+        self._experimentTitleEdit = QLineEdit()
+        self._experimentTitleEdit.returnPressed.connect(self._startExperimentAction.triggered)
+        self._titleNoteStack.addWidget(self._experimentTitleEdit)
+
         self._noteEdit = QLineEdit()
         self._noteEdit.returnPressed.connect(self._addEntryAction.triggered)
-        vboxLayout.addWidget(self._noteEdit)
+        self._titleNoteStack.addWidget(self._noteEdit)
+
+        vboxLayout.addWidget(self._titleNoteStack)
 
         self._notesView = QPlainTextEdit()
         self._notesView.setReadOnly(True)
@@ -99,8 +105,10 @@ class Labbook(QMainWindow):
         # Set up status bar.
         self.statusBar()
 
-        # Show window.
+        # Disable and enable actions as appropriate.
+        self._setInterfaceMode(False)
 
+        # Show window.
         self.show()
 
     def _startExperiment(self):
@@ -110,26 +118,22 @@ class Labbook(QMainWindow):
 
         self._experimentStartTime = datetime.datetime.now()
 
-        ok = False
-        while not ok:
-            title, ok = QInputDialog.getText(self, 'Experiment title', 
-                'Experiment title:')
-        self._experimentTitle = title
+        self._experimentTitle = self._experimentTitleEdit.text().strip()
+        self._experimentTitleEdit.clear()
 
         # Create experiment file
         filePath = "%s/%s.txt" % (APP_DIR, self._experimentStartTime.strftime("%Y-%m-%d-%H-%M-%S"))
         self._experimentFile = open(filePath, 'w')
         header = HEADER_TEMPLATE.substitute(
             date=self._experimentStartTime.strftime("%d/%m/%Y %H:%M:%S"),
-            title=title
+            title=self._experimentTitle
         )
         self._experimentFile.write(header)
         self._notesView.setPlainText(header)
 
         self._timerWidget.start()
 
-        self._addEntryAction.setEnabled(True)
-        self._stopExperimentAction.setEnabled(True)
+        self._setInterfaceMode(True)
 
     def _addEntry(self):
         if not self._experimentRunning:
@@ -147,19 +151,27 @@ class Labbook(QMainWindow):
 
         self._noteEdit.clear()
 
-    def _stopExperiment(self):
+    def _stopExperiment(self):  
         self._experimentRunning = False
 
         self._timerWidget.stop()
 
         self._experimentFile.close()
 
-        self._addEntryAction.setEnabled(False)
-        self._stopExperimentAction.setEnabled(False)
+        self._setInterfaceMode(False)
 
     def _openExperimentFolder(self):
         QDesktopServices.openUrl(QUrl("file:///" + APP_DIR, QUrl.TolerantMode))
 
+    def _setInterfaceMode(self, experimentRunning):
+        if experimentRunning:
+            self._addEntryAction.setEnabled(True)
+            self._stopExperimentAction.setEnabled(True)
+            self._titleNoteStack.setCurrentWidget(self._noteEdit)
+        else:
+            self._addEntryAction.setEnabled(False)
+            self._stopExperimentAction.setEnabled(False)
+            self._titleNoteStack.setCurrentWidget(self._experimentTitleEdit)
 
 class DigitalTimer(QLCDNumber):
 
